@@ -70,12 +70,12 @@ class User(AbstractBaseUser):
 
 class Account(models.Model):
     ACCOUNT_TYPES = [
-        # ('savings' , 'savings Account'),
-        # ('current' , 'current Account'),
-        ('naira' , 'naira Account'),
-        ('euro' , 'euro Account'),
-        ('usdollar' , 'usdollar Account'),
-        ('candollar' , 'candollar Account'),
+        ('savings' , 'savings Account'),
+        ('current' , 'current Account'),
+        # ('naira' , 'naira Account'),
+        # ('euro' , 'euro Account'),
+        # ('usdollar' , 'usdollar Account'),
+        # ('candollar' , 'candollar Account'),
         
 
     ]
@@ -86,8 +86,8 @@ class Account(models.Model):
     account_verified = models.BooleanField(default=False)
     account_type = models.CharField(max_length=10 , choices=ACCOUNT_TYPES)
     balance = models.DecimalField(max_digits=30 ,decimal_places=2 )
-    sort_code = models.CharField(max_length=6 , unique=True)
-    iban = models.CharField(max_length=22 , unique=True)
+    # sort_code = models.CharField(max_length=6 , unique=True)
+    # iban = models.CharField(max_length=22 , unique=True)
 
     def __str__(self):
         return str(self.account_name)
@@ -107,11 +107,11 @@ class Account(models.Model):
         if not instance.account_number:
             instance.account_number = '' .join(str(uuid.uuid4().int)[:10])
 
-        if not instance.sort_code:
-            instance.sort_code = '' .join(str(uuid.uuid4().int)[:6])
+        # if not instance.sort_code:
+        #     instance.sort_code = '' .join(str(uuid.uuid4().int)[:6])
         
-        if not instance.iban:
-            instance.iban = 'ED' + '' .join(str(uuid.uuid4().int)[:20])
+        # if not instance.iban:
+        #     instance.iban = 'ED' + '' .join(str(uuid.uuid4().int)[:20])
 
 
    
@@ -133,5 +133,10 @@ class Transaction(models.Model):
 class Reset (models.Model):
     email = models.CharField(max_length=255)
     token = models.CharField(max_length=255, unique=True)
+
+
+class UserTransactionPin(models.Model):
+    user = models.OneToOneField(User , on_delete=models.CASCADE)
+    transaction_pin = models.CharField(max_length=4 , null=True , blank=True)
 
 

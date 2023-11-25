@@ -7,4 +7,5 @@ admin.site.register(Account)
 admin.site.register(Reset)
 admin.site.register(Transaction)
 admin.site.register(AccountRequirement)
+admin.site.register(UserTransactionPin)
 

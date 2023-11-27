@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.response import  Response
 from .models import User , Account , AccountRequirement , Transaction , Reset , UserTransactionPin
-from .serializers import UserSerializer , AccountSerializer , UserRegistrationSeraializer , AccountCreationSerializer , TransactionSerializer , UserTransactionSerializerPin
-from rest_framework.decorators import api_view
+from .serializers import UserSerializer , AccountSerializer , UserRegistrationSeraializer , AccountCreationSerializer , TransactionSerializer , UserTransactionSerializerPin , UserProfileSerializer
+# from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework import status
 from django.core.mail import send_mail
@@ -13,9 +14,20 @@ from django.contrib.auth.hashers import make_password
 from bank.renders import UserRenderer
 import random
 import string
-from rest_framework.permissions import IsAdminUser , IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAdminUser , IsAuthenticated , AllowAny
 # Create your  views here.
 
+def get_auth_for_user(user):
+    refresh =  RefreshToken.for_user(user)
+    print('tokens' , refresh)
+    return {
+        'user': UserProfileSerializer(user).data,
+        'tokens':{
+            'access':str(refresh.access_token),
+            'refersh':str(refresh),
+        }
+    }
 
 class UserRegistrationView(APIView):
     renderer_classes =  [UserRenderer]
@@ -23,9 +35,26 @@ class UserRegistrationView(APIView):
         serializer = UserRegistrationSeraializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+        return Response(serializer.data , status=status.HTTP_201_CREATED)
             
         
+class UserLoginView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
 
+    def post(self,request, format=None):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        if not email or not password:
+            return Response(status=400)
+        user = authenticate(email=email , password=password)
+        if not user:
+            return Response(status=401)
+        
+        user_data = get_auth_for_user(user)
+        return Response(user_data)
+
+        
 
 
 class UserAccountRegistrationView(APIView):
@@ -169,5 +198,22 @@ class EditTransactionPinView(APIView):
 
         serializer = UserTransactionSerializerPin(user_profile)
         return Response(serializer.data,status=status.HTTP_200_OK)
+    
+
+class GetAllUsers(APIView):
+    permission_classes = [IsAdminUser]
+    def get(self,request):
+        users = User.objects.all()
+        serializer = UserProfileSerializer(users , many=True)
+        return Response(serializer.data)
+    
+
+#to enable an admin get all the users 
+class GetUserByIdView(APIView):
+    permission_classes = [IsAdminUser]
+    def get(self,request , pk):
+        user = User.objects.get(id=pk)
+        serializer = UserProfileSerializer(user, many=False)
+        return Response(serializer.data)
 
 

@@ -80,3 +80,26 @@ class UserTransactionSerializerPin(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    # name = serializers.SerializerMethodField(read_only=True)
+    # is_admin = serializers.SerializerMethodField(read_only=True)
+    # id = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id','email','name','phonenumber', 'is_admin','is_email_verified']
+
+    # def get_id(self, obj):
+    #     return obj.id
+
+    # def get_is_admin(self, obj):
+    #     return obj.is_staff
+
+    # def get_name(self, obj):
+    #     name = obj.name
+    #     if name == '':
+    #         name = obj.email
+
+    #     return name
+
+

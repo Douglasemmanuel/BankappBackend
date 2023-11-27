@@ -41,6 +41,7 @@ class User(AbstractBaseUser):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=False)
     phonenumber = models.CharField(max_length=15,unique=True)
 
     objects = UserManager()
